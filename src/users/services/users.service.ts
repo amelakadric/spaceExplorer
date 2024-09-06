@@ -1,0 +1,32 @@
+import { Injectable } from '@nestjs/common';
+import { User } from '../../shared/database/entities/user.entity';
+import { UsersRepository } from '../../shared/database/repostitories/users.repository';
+import { CreateUserDto } from '../dtos/create-user.dto';
+
+@Injectable()
+export class UsersService {
+  constructor(private readonly usersRepository: UsersRepository) {}
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    return this.usersRepository.create(createUserDto);
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.findAll();
+  }
+
+  async findOneById(id: string): Promise<User> {
+    return this.usersRepository.findOneById(id);
+  }
+
+  async update(
+    id: string,
+    updateUserDto: Partial<CreateUserDto>,
+  ): Promise<User> {
+    return this.usersRepository.update(id, updateUserDto);
+  }
+
+  async delete(id: string): Promise<any> {
+    return this.usersRepository.delete(id);
+  }
+}
