@@ -19,6 +19,10 @@ export class UsersService {
     return this.usersRepository.findOneById(id);
   }
 
+  async findOneByEmail(email: string) {
+    return this.usersRepository.findOneByEmail(email);
+  }
+
   async update(
     id: string,
     updateUserDto: Partial<CreateUserDto>,

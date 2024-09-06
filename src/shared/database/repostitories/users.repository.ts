@@ -23,6 +23,10 @@ export class UsersRepository {
     return this.userModel.findById(id).exec();
   }
 
+  async findOneByEmail(email: string): Promise<any> {
+    const user = await this.userModel.findOne({ email: email }).exec();
+    return user;
+  }
   async update(
     id: string,
     updateUserDto: Partial<CreateUserDto>,
