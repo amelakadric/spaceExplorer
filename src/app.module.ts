@@ -5,8 +5,9 @@ import { ApodModule } from './apod/apod.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { NewsFeedModule } from './news-feed/news-feed.module';
+import { UsersModule } from './users/users.module';
+import { ForumModule } from './forum/forum.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { NewsFeedModule } from './news-feed/news-feed.module';
     UsersModule,
     ApodModule,
     NewsFeedModule,
+    ForumModule,
   ],
   controllers: [AppController],
   providers: [AppService],
