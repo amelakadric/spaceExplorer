@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../auth/guards/jwt.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { RolesEnum } from '../enums/roles.enum';
@@ -25,20 +24,18 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(RolesEnum.Admin)
   @Get()
   async findAll() {
     return this.usersService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findOneById(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -47,7 +44,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(RolesEnum.Admin)
   @Delete(':id')
   async delete(@Param('id') id: string) {
