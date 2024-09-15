@@ -1,6 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -9,9 +13,14 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { AuthGuard } from '../../auth/guards/auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 import { UserJwtPayload } from '../../auth/types/user-jwt-payload';
 import { GetCurrentUser } from '../../shared/decorators/get-current-user.decorator';
+import { RolesEnum } from '../../users/enums/roles.enum';
+import { CreatePostDto } from '../dtos/create-post.dto';
+import { UpdatePostDto } from '../dtos/update-post.dto';
 import { PostService } from '../services/post.service';
 
 @Controller('forum')
@@ -43,15 +52,33 @@ export class ForumController {
   )
   async createPost(
     @UploadedFile() file: Express.Multer.File,
-    @Body('content') content: string,
+    @Body() createPostDto: CreatePostDto,
     @GetCurrentUser() user: UserJwtPayload,
   ) {
     const imagePath = file ? file.filename : null;
-    const post = await this.postService.createPost(content, user.id, imagePath);
+    return this.postService.createPost(createPostDto, user.id, imagePath);
+  }
 
-    return {
-      message: 'Post created successfully!',
-      post,
-    };
+  @Get('/posts')
+  getAllPosts() {
+    return this.postService.getAllPosts();
+  }
+
+  @Get('/posts/:id')
+  getPost(@Param('id') id: string) {
+    return this.postService.getPostById(id);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RolesEnum.Admin)
+  @Patch('/posts/:id')
+  updatePost(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return this.postService.updatePost(id, updatePostDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('/posts/:id')
+  deletePost(@Param('id') id: string) {
+    return this.postService.deletePost(id);
   }
 }
