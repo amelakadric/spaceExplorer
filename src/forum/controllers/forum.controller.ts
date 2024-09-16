@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -19,6 +20,7 @@ import { RolesGuard } from '../../auth/guards/roles.guard';
 import { UserJwtPayload } from '../../auth/types/user-jwt-payload';
 import { GetCurrentUser } from '../../shared/decorators/get-current-user.decorator';
 import { RolesEnum } from '../../users/enums/roles.enum';
+import { CreateCommentDto } from '../dtos/create-comment.dto';
 import { CreatePostDto } from '../dtos/create-post.dto';
 import { UpdatePostDto } from '../dtos/update-post.dto';
 import { PostService } from '../services/post.service';
@@ -80,5 +82,37 @@ export class ForumController {
   @Delete('/posts/:id')
   deletePost(@Param('id') id: string) {
     return this.postService.deletePost(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('comment/:postId')
+  async addComment(
+    @Param('postId') postId: string,
+    @Body() createCommentDto: CreateCommentDto,
+    @GetCurrentUser() user: UserJwtPayload,
+  ) {
+    try {
+      return await this.postService.addComment(
+        postId,
+        createCommentDto,
+        user.id,
+      );
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('comment/:postId/:commentId')
+  async deleteComment(
+    @Param('postId') postId: string,
+    @Param('commentId') commentId: string,
+    @GetCurrentUser() user: UserJwtPayload,
+  ) {
+    try {
+      return await this.postService.deleteComment(postId, commentId, user.id);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 }

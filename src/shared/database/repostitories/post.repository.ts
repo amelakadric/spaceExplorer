@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { CreateCommentDto } from '../../../forum/dtos/create-comment.dto';
 import { CreatePostDto } from '../../../forum/dtos/create-post.dto';
 import { UpdatePostDto } from '../../../forum/dtos/update-post.dto';
 import { PostStatusEnum } from '../../enums/post-status.enum';
@@ -59,5 +60,41 @@ export class PostRepository {
   async deleteById(id: string): Promise<{ deleted: boolean }> {
     const result = await this.postModel.deleteOne({ _id: id }).exec();
     return { deleted: result.deletedCount > 0 };
+  }
+
+  async addComment(
+    postId: string,
+    createCommentDto: CreateCommentDto,
+    userId: string,
+  ) {
+    const post = await this.postModel.findById(postId);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const comment = post.comments.create({
+      content: createCommentDto.content,
+      userId: new Types.ObjectId(userId),
+      createdAt: new Date(),
+    });
+    post.comments.push(comment);
+
+    return post.save();
+  }
+
+  async deleteComment(postId: string, commentId: string, userId: string) {
+    const post = await this.postModel.findById(postId);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const comment = post.comments.id(commentId);
+    if (comment && comment.userId.toString() === userId) {
+      post.comments.pull(commentId);
+      return post.save();
+    }
+
+    throw new NotFoundException('Comment not found or user not authorized');
   }
 }

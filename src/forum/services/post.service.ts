@@ -5,6 +5,7 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import { PostRepository } from '../../shared/database/repostitories/post.repository';
 import { Post } from '../../shared/database/schemas/post.schema';
 import { PostStatusEnum } from '../../shared/enums/post-status.enum';
+import { CreateCommentDto } from '../dtos/create-comment.dto';
 import { CreatePostDto } from '../dtos/create-post.dto';
 import { UpdatePostDto } from '../dtos/update-post.dto';
 
@@ -76,5 +77,17 @@ export class PostService {
       role: 'user',
       content: text,
     };
+  }
+
+  async addComment(
+    postId: string,
+    createCommentDto: CreateCommentDto,
+    userId: string,
+  ) {
+    return this.postRepository.addComment(postId, createCommentDto, userId);
+  }
+
+  async deleteComment(postId: string, commentId: string, userId: string) {
+    return this.postRepository.deleteComment(postId, commentId, userId);
   }
 }
