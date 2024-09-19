@@ -19,9 +19,44 @@ const generateOrbit = (centerX, centerY, radius, numPoints = 100) => {
   return orbit;
 };
 
+// Planet fun facts
+const planetFunFacts = {
+  mercury: "Mercury is the smallest planet in our Solar System.",
+  venus: "Venus is the hottest planet in our Solar System.",
+  earth: "Earth is the only planet known to support life.",
+  mars: "Mars is known as the Red Planet.",
+  jupiter: "Jupiter is the largest planet in our Solar System.",
+  saturn: "Saturn is famous for its prominent ring system.",
+  uranus: "Uranus rotates on its side.",
+  neptune: "Neptune has the strongest winds in the Solar System.",
+  pluto: "Pluto is now classified as a dwarf planet.",
+  sun: "The Sun is the star at the center of our Solar System.",
+};
+
+// Corrected Typewriter component
+const Typewriter = ({ text }) => {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    setDisplayedText("");
+    let index = 0;
+    const interval = setInterval(() => {
+      setDisplayedText(text.slice(0, index + 1));
+      index++;
+      if (index > text.length) {
+        clearInterval(interval);
+      }
+    }, 50); // Adjust speed as needed
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <p>{displayedText}</p>;
+};
+
 const PlanetPositionPage = () => {
   const [bodies, setBodies] = useState([]);
-  const [graph, setGraph] = useState(null); // Track the graph instance
+  const [graph, setGraph] = useState(null);
+  const [selectedPlanet, setSelectedPlanet] = useState(null); // State for selected planet
 
   useEffect(() => {
     // Fetch planet data from the API
@@ -132,7 +167,14 @@ const PlanetPositionPage = () => {
         nodeColor: (node) => (node.isOrbitNode ? "gray" : node.color || "white"), // Set colors based on the node data
         nodeSize: (node) => (node.isOrbitNode ? 1 : node.size || 5), // Small size for orbit nodes
         events: {
-          onClick: (node) => console.log("Clicked node: ", node),
+          onClick: (node) => {
+            if (node && !node.isOrbitNode) {
+              setSelectedPlanet(node);
+            } else {
+              // Clicked on empty space or orbit node
+              setSelectedPlanet(null);
+            }
+          },
         },
       });
 
@@ -170,7 +212,7 @@ const PlanetPositionPage = () => {
       pluto: "lightgray", // Include Pluto if needed
       sun: "orange",
     };
-    return colors[id] || "white";
+    return colors[id.toLowerCase()] || "white";
   };
 
   const getSize = (id) => {
@@ -186,13 +228,34 @@ const PlanetPositionPage = () => {
       pluto: 8, // Include Pluto if needed
       sun: 20, // Larger size for the Sun
     };
-    return sizes[id] || 5;
+    return sizes[id.toLowerCase()] || 5;
   };
 
   return (
     <div>
       <h1>Planetary Visualization</h1>
       <canvas id="cosmos-container" style={{ width: "100%", height: "600px" }}></canvas>
+      {selectedPlanet && !selectedPlanet.isOrbitNode && (
+        <div
+          className="planet-card"
+          style={{
+            position: "absolute",
+            bottom: 10,
+            left: 10,
+            width: "300px",
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          }}
+        >
+          <h2>
+            <Typewriter text={selectedPlanet.label} />
+          </h2>
+          <Typewriter text={planetFunFacts[selectedPlanet.id.toLowerCase()] || "No fun facts available."} />
+          <button onClick={() => setSelectedPlanet(null)}>Close</button>
+        </div>
+      )}
     </div>
   );
 };
