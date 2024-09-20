@@ -41,6 +41,11 @@ export class ApodService {
 
   // Method to get the stored APOD data for the frontend
   async getApodData(date: string) {
-    return this.apodModel.findOne({ date }).exec();
+    const data = await this.apodModel.findOne({ date }).exec();
+    if (!data) {
+      this.fetchApodData();
+      return await this.apodModel.findOne({ date }).exec();
+    }
+    return data;
   }
 }

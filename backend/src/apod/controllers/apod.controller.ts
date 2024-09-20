@@ -11,6 +11,7 @@ export class ApodController {
       // Return today's date if no date is provided
       const today = new Date().toISOString().split('T')[0];
       date = today;
+      console.log(date);
     }
     return this.apodService.getApodData(date);
   }

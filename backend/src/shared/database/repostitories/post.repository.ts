@@ -31,6 +31,7 @@ export class PostRepository {
     return this.postModel
       .find({ status: PostStatusEnum.APPROVED })
       .populate('author')
+      .populate('comments.userId')
       .exec();
   }
 
@@ -68,6 +69,7 @@ export class PostRepository {
     userId: string,
   ) {
     const post = await this.postModel.findById(postId);
+
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -79,7 +81,7 @@ export class PostRepository {
     });
     post.comments.push(comment);
 
-    return post.save();
+    return (await post.save()).populate('comments.userId');
   }
 
   async deleteComment(postId: string, commentId: string, userId: string) {
